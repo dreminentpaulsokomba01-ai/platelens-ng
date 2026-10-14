@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b3c6f">
+  <meta name="description" content="PlateLens NG - antibiotic sensitivity result support for qualified laboratory professionals">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>PlateLens NG</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+
+  <!-- ===== Header ===== -->
+  <header class="app-header">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <h1>PlateLens NG</h1>
+    </div>
+    <span class="lab-chip" id="labChip"></span>
+  </header>
+
+  <!-- ===== Main views (one visible at a time) ===== -->
+  <main id="app">
+
+    <!-- 1. NEW RESULT -->
+    <section class="view" id="view-new" data-view="new">
+      <h2 data-i18n="new.title"></h2>
+
+      <button type="button" class="banner warn banner-btn" id="profileBanner" hidden data-i18n="banner.profile"></button>
+      <div class="banner warn" id="bpBanner" hidden data-i18n="warn.noBreakpoints"></div>
+
+      <form id="resultForm" novalidate autocomplete="off">
+        <label class="field">
+          <span class="field-label" data-i18n="new.sampleId"></span>
+          <input id="sampleId" type="text" maxlength="30" autocomplete="off" autocapitalize="characters" spellcheck="false" required>
+          <small class="hint" data-i18n="new.sampleIdHint"></small>
+        </label>
+
+        <label class="field">
+          <span class="field-label" data-i18n="new.sampleType"></span>
+          <select id="sampleType" required></select>
+        </label>
+
+        <label class="field">
+          <span class="field-label" data-i18n="new.organism"></span>
+          <select id="organism" required></select>
+        </label>
+
+        <label class="field">
+          <span class="field-label" data-i18n="new.date"></span>
+          <input id="resultDate" type="date" required>
+        </label>
+
+        <h3 data-i18n="new.zones"></h3>
+        <p class="hint" data-i18n="new.zonesHint"></p>
+        <div id="zoneList" class="zone-list"></div>
+
+        <div id="formError" class="banner error" role="alert" hidden></div>
+
+        <div class="actions">
+          <button type="submit" class="btn primary" id="btnSave" data-i18n="new.save"></button>
+          <button type="button" class="btn secondary" id="btnClear" data-i18n="new.clear"></button>
+        </div>
+      </form>
+    </section>
+
+    <!-- 2. SAVED RESULTS -->
+    <section class="view" id="view-history" data-view="history" hidden>
+      <h2 data-i18n="history.title"></h2>
+      <p class="hint" id="historyEmpty" data-i18n="history.empty" hidden></p>
+      <div id="historyList" class="card-list"></div>
+    </section>
+
+    <!-- 3. LOCAL ANTIBIOGRAM -->
+    <section class="view" id="view-abg" data-view="abg" hidden>
+      <h2 data-i18n="abg.title"></h2>
+      <p class="hint" data-i18n="abg.desc"></p>
+      <label class="field">
+        <span class="field-label" data-i18n="abg.organism"></span>
+        <select id="abgOrganism"></select>
+      </label>
+      <p class="hint" id="abgEmpty" data-i18n="abg.empty" hidden></p>
+      <p class="summary" id="abgSummary"></p>
+      <div class="table-wrap" id="abgTable"></div>
+      <p class="hint" id="abgNote" hidden></p>
+    </section>
+
+    <!-- 4. RESISTANCE MAP (table for now) -->
+    <section class="view" id="view-map" data-view="map" hidden>
+      <h2 data-i18n="map.title"></h2>
+      <p class="hint" data-i18n="map.desc"></p>
+      <label class="field">
+        <span class="field-label" data-i18n="map.organism"></span>
+        <select id="mapOrganism"></select>
+      </label>
+      <label class="field">
+        <span class="field-label" data-i18n="map.antibiotic"></span>
+        <select id="mapAntibiotic"></select>
+      </label>
+      <p class="hint" id="mapEmpty" data-i18n="map.empty" hidden></p>
+      <div class="table-wrap" id="mapTable"></div>
+      <div class="banner info" data-i18n="map.phase2"></div>
+    </section>
+
+    <!-- 5. SETTINGS -->
+    <section class="view" id="view-settings" data-view="settings" hidden>
+      <h2 data-i18n="settings.title"></h2>
+
+      <h3 data-i18n="settings.lab"></h3>
+      <form id="labForm" novalidate autocomplete="off">
+        <label class="field">
+          <span class="field-label" data-i18n="settings.labName"></span>
+          <input id="labName" type="text" maxlength="80" required>
+        </label>
+        <label class="field">
+          <span class="field-label" data-i18n="settings.state"></span>
+          <select id="labState" required></select>
+        </label>
+        <label class="field">
+          <span class="field-label" data-i18n="settings.lga"></span>
+          <input id="labLga" type="text" list="lgaList" maxlength="60" required>
+          <datalist id="lgaList"></datalist>
+        </label>
+        <label class="field">
+          <span class="field-label" data-i18n="settings.mlscn"></span>
+          <input id="labMlscn" type="text" maxlength="40">
+          <small class="hint" data-i18n="settings.mlscnHint"></small>
+        </label>
+        <div id="labError" class="banner error" role="alert" hidden></div>
+        <button type="submit" class="btn primary" data-i18n="settings.saveProfile"></button>
+      </form>
+
+      <h3 data-i18n="settings.language"></h3>
+      <label class="field">
+        <select id="langSelect" aria-label="Language"></select>
+      </label>
+
+      <h3 data-i18n="settings.panel"></h3>
+      <p class="hint" data-i18n="settings.panelHint"></p>
+      <ul id="panelList" class="panel-list"></ul>
+      <div class="inline-add">
+        <input id="newAbx" type="text" maxlength="40" data-i18n-placeholder="settings.addAbx" aria-label="Antibiotic name">
+        <button type="button" class="btn primary small" id="btnAddAbx" data-i18n="settings.add"></button>
+      </div>
+      <button type="button" class="btn secondary" id="btnResetPanel" data-i18n="settings.resetPanel"></button>
+
+      <h3 data-i18n="settings.data"></h3>
+      <p class="hint" data-i18n="settings.dataNote"></p>
+      <div class="actions">
+        <button type="button" class="btn secondary" id="btnExport" data-i18n="settings.export"></button>
+        <button type="button" class="btn secondary" id="btnReinterpret" data-i18n="settings.reinterpret"></button>
+        <button type="button" class="btn danger" id="btnDeleteAll" data-i18n="settings.deleteAll"></button>
+      </div>
+
+      <h3 data-i18n="settings.about"></h3>
+      <div class="banner warn" data-i18n="settings.disclaimer"></div>
+      <p class="hint" id="aboutVersion"></p>
+      <p class="hint" data-i18n="settings.phase2"></p>
+    </section>
+
+  </main>
+
+  <!-- ===== Bottom navigation (5 tabs) ===== -->
+  <nav class="bottom-nav" aria-label="Main">
+    <button type="button" class="nav-btn active" data-tab="new">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+      <span data-i18n="nav.new"></span>
+    </button>
+    <button type="button" class="nav-btn" data-tab="history">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>
+      <span data-i18n="nav.history"></span>
+    </button>
+    <button type="button" class="nav-btn" data-tab="abg">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>
+      <span data-i18n="nav.abg"></span>
+    </button>
+    <button type="button" class="nav-btn" data-tab="map">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6-5.2-6-10a6 6 0 1 1 12 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg>
+      <span data-i18n="nav.map"></span>
+    </button>
+    <button type="button" class="nav-btn" data-tab="settings">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>
+      <span data-i18n="nav.settings"></span>
+    </button>
+  </nav>
+
+  <!-- ===== Result sheet (printable) ===== -->
+  <div id="sheet" class="sheet-overlay" hidden role="dialog" aria-modal="true">
+    <div class="sheet-toolbar no-print">
+      <button type="button" class="btn secondary small" id="sheetClose" data-i18n="sheet.close"></button>
+      <button type="button" class="btn primary small" id="sheetPrint" data-i18n="sheet.print"></button>
+    </div>
+    <article class="sheet-paper" id="sheetBody"></article>
+  </div>
+
+  <!-- ===== First-launch consent ===== -->
+  <div id="consent" class="overlay" hidden role="dialog" aria-modal="true" aria-labelledby="consentTitle">
+    <div class="dialog">
+      <label class="field">
+        <span class="field-label" data-i18n="consent.lang"></span>
+        <select id="consentLang"></select>
+      </label>
+      <h2 id="consentTitle" data-i18n="consent.title"></h2>
+      <p data-i18n="consent.b1"></p>
+      <p data-i18n="consent.b2"></p>
+      <p data-i18n="consent.b3"></p>
+      <p data-i18n="consent.b4"></p>
+      <label class="check">
+        <input type="checkbox" id="consentCheck">
+        <span data-i18n="consent.check"></span>
+      </label>
+      <button type="button" class="btn primary" id="consentAccept" data-i18n="consent.accept" disabled></button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+</body>
+</html>
